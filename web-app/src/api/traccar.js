@@ -4,7 +4,7 @@
 import { fetchTimeout } from "../utils.js";
 
 const host = window.FINDMYCAT_CONFIG?.traccarHost;
-const API = host ? "https://" + host + "/api" : "/api";
+const API = host ? location.protocol + "//" + host + "/api" : "/api";
 
 // --- REST ---
 
@@ -166,14 +166,14 @@ export function openSocket(onMessage) {
       }
     };
 
-    const reconnect = () => {
+    // onclose always fires after onerror, so it is the single reconnect point —
+    // scheduling in both would stack timers and open duplicate sockets.
+    ws.onclose = () => {
       if (!closed && !unloading) {
         timer = setTimeout(connect, 3000);
       }
     };
-
-    ws.onclose = reconnect;
-    ws.onerror = reconnect;
+    ws.onerror = () => ws.close();
   }
 
   connect();

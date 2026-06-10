@@ -28,7 +28,7 @@ export function subscribe(listener) {
 
 /**
  * Return the current state object.
- * @returns {{ devices: Device[], positions: Position[] }}
+ * @returns {{ devices: Device[], positions: Position[], geofences: Geofence[], geofenceDevices: Object<number, number[]> }}
  */
 export function getState() {
   return state;
@@ -36,7 +36,7 @@ export function getState() {
 
 /**
  * Merge patch into state and notify all listeners.
- * @param {Partial<{ devices: Device[], positions: Position[] }>} patch
+ * @param {Partial<{ devices: Device[], positions: Position[], geofences: Geofence[], geofenceDevices: Object<number, number[]> }>} patch
  */
 export function setState(patch) {
   Object.assign(state, patch);

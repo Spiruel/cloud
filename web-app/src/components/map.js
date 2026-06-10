@@ -165,7 +165,8 @@ export function updateGeofences(geofences) {
 // ── History track ─────────────────────────────────────────────────────────────
 
 export function showTrack(positions) {
-  if (!_map || !positions?.length) return
+  if (!_map) return
+  if (!positions?.length) { clearTrack(); return }
   const sorted = [...positions].sort((a, b) => new Date(a.fixTime) - new Date(b.fixTime))
   const coords = sorted.map(p => [p.longitude, p.latitude])
   const pointFeatures = sorted.map(p => ({
@@ -197,8 +198,22 @@ export function clearTrack() {
 
 export function toggleMapStyle() {
   isSatellite = !isSatellite
-  const tileUrl = window.FINDMYCAT_CONFIG?.tileUrl || DEFAULT_TILE_URL
-  _map?.getSource("raster-tiles")?.setTiles([isSatellite ? SAT_TILE_URL : tileUrl])
+  if (_map?.getSource("raster-tiles")) {
+    // Re-add the source rather than setTiles() — attribution can only be set
+    // at source creation, and it must switch along with the tile provider.
+    const tileUrl = window.FINDMYCAT_CONFIG?.tileUrl || DEFAULT_TILE_URL
+    const tileAttr = window.FINDMYCAT_CONFIG?.tileAttribution || DEFAULT_TILE_ATTR
+    const beforeId = _map.getStyle().layers.find(l => l.id !== "raster-tiles")?.id
+    _map.removeLayer("raster-tiles")
+    _map.removeSource("raster-tiles")
+    _map.addSource("raster-tiles", {
+      type: "raster",
+      tiles: [isSatellite ? SAT_TILE_URL : tileUrl],
+      tileSize: 256,
+      attribution: isSatellite ? SAT_TILE_ATTR : tileAttr,
+    })
+    _map.addLayer({ id: "raster-tiles", type: "raster", source: "raster-tiles", minzoom: 0, maxzoom: 22 }, beforeId)
+  }
   return isSatellite
 }
 

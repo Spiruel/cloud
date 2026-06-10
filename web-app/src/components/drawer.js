@@ -230,7 +230,8 @@ export function updateDevices(devices, positions, callbacks) {
 export function updateZones(geofences, geofenceDevices, devices, callbacks) {
   if (geofences !== undefined) lastGeofences = geofences
   if (geofenceDevices !== undefined) lastGeofenceDevices = geofenceDevices
-  if (devices !== undefined && callbacks !== undefined) lastCallbacks = callbacks
+  if (devices !== undefined) lastDevices = devices
+  if (callbacks !== undefined) lastCallbacks = callbacks
 
   const zc = document.getElementById('zc')
   const zl = document.getElementById('zl')
